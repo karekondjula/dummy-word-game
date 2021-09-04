@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.rubean.user">
 
+    <permission android:name="permission.bot"/>
+    <uses-permission android:name="permission.bot"/>
+
     <application
         android:allowBackup="false"
         android:fullBackupContent="false"
@@ -12,10 +15,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.DummyWordGame"
         tools:ignore="AllowBackup">
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
