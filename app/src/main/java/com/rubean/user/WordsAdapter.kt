@@ -6,7 +6,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 
-class WordsAdapter(private val listOfWords: MutableList<String>) :
+class WordsAdapter(private val listOfMovePlayers: MutableList<String> = mutableListOf()) :
     RecyclerView.Adapter<WordsAdapter.WordViewHolder>() {
 
     inner class WordViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -20,14 +20,14 @@ class WordsAdapter(private val listOfWords: MutableList<String>) :
     }
 
     override fun onBindViewHolder(holder: WordViewHolder, position: Int) {
-        val word = listOfWords[position]
+        val word = listOfMovePlayers[position]
         holder.wordTextView.text = word
     }
 
-    override fun getItemCount() = listOfWords.size
+    override fun getItemCount() = listOfMovePlayers.size
 
-    fun addWord(newWord: String) {
-        listOfWords.add(newWord)
-        notifyItemInserted(listOfWords.size - 1)
+    fun updateList(word: String) {
+        listOfMovePlayers.add(word)
+        notifyItemInserted(listOfMovePlayers.size - 1)
     }
 }
