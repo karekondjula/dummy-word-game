@@ -2,6 +2,6 @@ package com.rubean.bot;
 import com.rubean.bot.IBotCallback;
 
 interface IBotService {
-    void nextUserMove(in List<String> words);
+    void nextUserMove(String move);
     void registerCallback(IBotCallback callback);
 }

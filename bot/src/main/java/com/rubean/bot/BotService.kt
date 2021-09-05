@@ -22,10 +22,9 @@ class BotService : Service() {
     }
 
     inner class BotBinder : IBotService.Stub() {
-        override fun nextUserMove(words: List<String>) {
-            val newWords: MutableList<String> = mutableListOf<String>().apply { addAll(words) }
-            newWords.add("bot word")
-            botCallback.nextBotMove(newWords)
+        override fun nextUserMove(move: String) {
+            val botMove = "$move bot word"
+            botCallback.nextBotMove(botMove)
         }
 
         override fun registerCallback(callback: IBotCallback) {
