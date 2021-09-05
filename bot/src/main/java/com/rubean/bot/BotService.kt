@@ -4,6 +4,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import android.util.Log
+import kotlin.random.Random
 
 class BotService : Service() {
 
@@ -23,7 +24,12 @@ class BotService : Service() {
 
     inner class BotBinder : IBotService.Stub() {
         override fun nextUserMove(move: String) {
-            val botMove = "$move bot word"
+
+            val botMove = if (Random.nextInt(100) < 3) {
+                "TOO_MUCH_FOR_ME"
+            } else {
+                "$move b${move.replace(" ", "")}"
+            }
             botCallback.nextBotMove(botMove)
         }
 
