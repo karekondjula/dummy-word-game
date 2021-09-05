@@ -3,11 +3,13 @@ package com.rubean.user
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
+import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.rubean.bot.IBotCallback
 
 class MainActivity : AppCompatActivity() {
 
@@ -15,31 +17,52 @@ class MainActivity : AppCompatActivity() {
     private var wordsAdapter: WordsAdapter? = null
     private var recyclerView: RecyclerView? = null
 
-    private val botCallback = object : IBotCallback.Stub() {
-        override fun nextBotMove(move: String) {
-            if (gameManager.isMoveValid(move)) {
-                val playerMove = "PL-2 : $move"
-                addMoveAndScrollToBottom(playerMove)
-            }
-        }
-    }
-
-    private var serviceManager = ServiceManager(this, botCallback)
-    private val gameManager = GameManager(mutableListOf())
+    private val gameManager: GameManager = GameManagerImpl(this, lifecycleScope)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        lifecycle.addObserver(serviceManager)
-
+        initObservers()
         initRecyclerView()
-
         initEditText()
     }
 
+    private fun initObservers() {
+        lifecycle.addObserver(gameManager.serviceManager)
+
+        gameManager.gameStateLiveData.observe(this, { gameState ->
+            when (gameState) {
+                is GameState.ValidMove -> {
+                    addToListAndScrollToBottom(gameState.movePlayer.playerWordToString())
+                }
+                is GameState.GameEnd -> {
+                    disableUI()
+                    addToListAndScrollToBottom(gameState.lastPlayed.playerWordToString())
+                    addToListAndScrollToBottom(gameState.reason)
+                    showEndGameMessage(gameState)
+                }
+            }
+        })
+    }
+
+    private fun showEndGameMessage(gameState: GameState.GameEnd) {
+        val winner = if (gameState.lastPlayed.player == Player.USER) "BOT" else "USER"
+        AlertDialog.Builder(this)
+            .setTitle("Winner is $winner")
+            .setMessage(gameState.reason)
+            .create()
+            .show()
+    }
+
+    private fun disableUI() {
+        newWordEditText?.isEnabled = false
+        recyclerView?.isEnabled = false
+        findViewById<Button>(R.id.submit_button).isEnabled = false
+    }
+
     private fun initRecyclerView() {
-        wordsAdapter = WordsAdapter(mutableListOf())
+        wordsAdapter = WordsAdapter()
         recyclerView = findViewById<RecyclerView>(R.id.words_recycler_view).apply {
             hasFixedSize()
             layoutManager = LinearLayoutManager(this@MainActivity)
@@ -60,24 +83,25 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun addMoveAndScrollToBottom(move: String) {
+    private fun addToListAndScrollToBottom(word: String) {
         wordsAdapter?.let { nonNulAdapter ->
-            nonNulAdapter.addWord(move)
+            nonNulAdapter.updateList(word)
             recyclerView?.smoothScrollToPosition(nonNulAdapter.itemCount)
         }
     }
 
     fun submitWord(view: View) {
         newWordEditText?.text.toString().let { move ->
-            if (gameManager.isMoveValid(move)) {
-                addMoveAndScrollToBottom("PL-1 : $move")
-                serviceManager.nextUserMove(move)
+            move.trim().let { trimmedWord ->
+                if (trimmedWord.isNotEmpty()) {
+                    gameManager.userMove(trimmedWord)
+                    newWordEditText?.text?.clear()
+                }
             }
         }
     }
 
     companion object {
-        const val TAG = "MainActivity"
         const val BOT_PACKAGE = "com.rubean.bot"
         const val BOT_ACTION = "$BOT_PACKAGE.start"
     }
