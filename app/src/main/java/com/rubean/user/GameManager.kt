@@ -28,7 +28,7 @@ class GameManagerImpl(
 
     init {
         serviceManager.botMoveFlow.onEach { move ->
-            delay(200) // simulate short server delay
+            delay(1500) // simulate short server delay
             analyzeMove(move, Player.BOT)
         }.launchIn(lifecycleScope)
     }
@@ -40,8 +40,16 @@ class GameManagerImpl(
 
         lastMove = move
 
-        if (player == Player.USER && gameState is GameState.ValidMove) {
-            serviceManager.nextUserMove(move)
+        if (gameState is GameState.ValidMove) {
+            when (player) {
+                Player.USER -> {
+                    serviceManager.nextUserMove(move)
+                    gameStateLiveData.value = GameState.BotTurn
+                }
+                Player.BOT -> {
+                    gameStateLiveData.value = GameState.UserTurn
+                }
+            }
         }
     }
 
@@ -81,6 +89,8 @@ class GameManagerImpl(
 }
 
 sealed class GameState {
+    object UserTurn: GameState()
+    object BotTurn: GameState()
     data class ValidMove(val movePlayer: MovePlayer) : GameState()
     data class GameEnd(val lastPlayed: MovePlayer, val reason: String) : GameState()
 }

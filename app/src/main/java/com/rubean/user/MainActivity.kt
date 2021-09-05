@@ -33,6 +33,14 @@ class MainActivity : AppCompatActivity() {
 
         gameManager.gameStateLiveData.observe(this, { gameState ->
             when (gameState) {
+                GameState.UserTurn -> {
+                    newWordEditText?.isEnabled = true
+                    newWordEditText?.hint = getString(R.string.make_your_move)
+                }
+                GameState.BotTurn -> {
+                    newWordEditText?.isEnabled = false
+                    newWordEditText?.hint = getString(R.string.bots_turn)
+                }
                 is GameState.ValidMove -> {
                     addToListAndScrollToBottom(gameState.movePlayer.playerWordToString())
                 }
