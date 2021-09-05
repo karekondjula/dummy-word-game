@@ -11,13 +11,26 @@ import androidx.lifecycle.LifecycleObserver
 import androidx.lifecycle.OnLifecycleEvent
 import com.rubean.bot.IBotCallback
 import com.rubean.bot.IBotService
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 
-class ServiceManager(
-    private val context: Context,
-    botCallback: IBotCallback.Stub
-) : LifecycleObserver {
+interface ServiceManager : LifecycleObserver {
+    val botMoveFlow: Flow<String>
+
+    fun nextUserMove(move: String)
+}
+
+class ServiceManagerImpl(private val context: Context) : ServiceManager {
 
     private var botService: IBotService? = null
+
+    override val botMoveFlow: MutableSharedFlow<String> = MutableSharedFlow(replay = 1)
+
+    private val botCallback = object : IBotCallback.Stub() {
+        override fun nextBotMove(move: String) {
+            botMoveFlow.tryEmit(move)
+        }
+    }
 
     private val connection = object : ServiceConnection {
 
@@ -47,7 +60,7 @@ class ServiceManager(
         context.unbindService(connection)
     }
 
-    fun nextUserMove(move: String) {
+    override fun nextUserMove(move: String) {
         botService?.nextUserMove(move)
     }
 }
