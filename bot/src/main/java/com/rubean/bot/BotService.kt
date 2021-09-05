@@ -23,9 +23,8 @@ class BotService : Service() {
 
     inner class BotBinder : IBotService.Stub() {
         override fun nextUserMove(words: List<String>) {
-            Log.d(TAG, words.toString())
             val newWords: MutableList<String> = mutableListOf<String>().apply { addAll(words) }
-            newWords.add("word")
+            newWords.add("bot word")
             botCallback.nextBotMove(newWords)
         }
 

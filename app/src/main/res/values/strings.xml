@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">Dummy word game</string>
+    <string name="submit">Submit</string>
+    <string name="make_your_move">Make your move!</string>
 </resources>
