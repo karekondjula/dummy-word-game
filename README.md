@@ -1,10 +1,13 @@
 # dummy-word-game
 
-Dummy word game is an assignment project based on AIDL communication between two projects.
+Dummy word game is an assignment project based on AIDL communication between two projects. It 
+contains two modules: user and bot. The user module contains the actual application while the bot
+module only contains the service. The two modules are runnable. First install the bot module so
+the user module can properly bind to the BotService.
 
-## User part
+## User module
 
-The user part shows the simple UI associated with the Dummy word game. The user's MainActivity
+The user module contains simple UI associated with the Dummy word game. The user's MainActivity
 is created with no additional logic, as "dumb" as possible. It captures the input text via a submit
 event and dispatches it off to GameManager. Using an additional Fragment seemed like an overkill.
 
@@ -19,10 +22,10 @@ bot or the user is valid.
 
 When the game finishes an alert dialog shows who won and what was the error.
 
-## Bot part
+## Bot module
 
-The bot part shows no UI (actually shows an activity which uses a transparent theme) and is used
-only for starting the BotService which the user part binds using AIDL. The BotService receives from
-the user part the text (a game move by the user) , prepends *b* , flattens it with removing the
+The bot module shows no UI (actually shows a short-living activity which uses a transparent theme) and is used
+only for starting the BotService which the user module binds to via AIDL. The BotService receives from
+the user module the text (a game move by the user) , prepends *b* , flattens it with removing the
 whitespaces and through a callback sends it back to the user. There is a 3% chance that the reply
 will be *"TOO_MUCH_FOR_ME"* which will force the bot to lose the game.
